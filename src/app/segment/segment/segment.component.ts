@@ -5,11 +5,13 @@ import { SymbolItem } from 'src/app/share/entities/symbol';
 import { ConverterTaxPost } from 'src/app/share/entities/converter-tax';
 import { TaxRatingService } from 'src/app/share/services/tax-rating/tax-rating.service';
 import { Subscription } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-segment',
   templateUrl: './segment.component.html',
-  styleUrls: ['./segment.component.css']
+  styleUrls: ['./segment.component.css'],
+  providers:[MessageService]
 })
 export class SegmentComponent implements OnInit, OnDestroy {
   public idSegmento!: number;
@@ -184,8 +186,10 @@ export class SegmentComponent implements OnInit, OnDestroy {
   ];
 
 
-  constructor(private taxRatingService: TaxRatingService, private route: ActivatedRoute,
-    private formBuilder: FormBuilder) {
+  constructor(private taxRatingService: TaxRatingService, 
+    private route: ActivatedRoute,
+    private formBuilder: FormBuilder,
+    private messageService :MessageService) {
     this.segmentForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
       tax: ['', [Validators.required]]
@@ -198,6 +202,9 @@ export class SegmentComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sub = this.route.params.subscribe(params => {
       this.idSegmento = +params['id'];
+      this.amount = 1    
+      this.text = {} as SymbolItem;
+      this.result = 0;
     });
   }
   onSubmit() {
@@ -226,6 +233,9 @@ export class SegmentComponent implements OnInit, OnDestroy {
 
     this.taxRatingService.post(calc).then(ret => {
       this.result = ret.valConverted;
+      this.messageService.add({ severity: 'success', summary: 'Conversão', detail: 'Conversão realizado com sucesso!' });
+    }).catch(error => {
+      this.messageService.add({ severity: 'error', summary: 'Conversão', detail: 'Erro para realizar a conversão.' });
     });
 
   }
