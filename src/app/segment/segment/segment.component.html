@@ -1,0 +1,43 @@
+<div class="grid mt-2">
+    <div class="col">
+        <p-card header="Moeda">
+            <div class="grid">
+                <div class="col">
+                    <p-autoComplete [(ngModel)]="text" [suggestions]="results" field="name"
+                        (completeMethod)="search($event)" [dropdown]="true">
+                        <ng-template let-synbol pTemplate="item">
+                            <div>
+                                <div>{{synbol.name}}</div>
+                            </div>
+                        </ng-template>
+                    </p-autoComplete>
+                </div>
+            </div>
+        </p-card>
+
+    </div>
+    <div class="col">
+        <p-card header="Quantidade">
+            <div class="grid">
+                <div class="col">
+                    <p-inputNumber [(ngModel)]="amount"></p-inputNumber>
+                </div>
+            </div>
+
+        </p-card>
+    </div>
+    <div class="col">
+        <p-card header="Converter">
+            <div class="grid">
+                <div class="col">
+                    <p-inputNumber [(ngModel)]="result" [readonly]=true mode="decimal" prefix="R$" [minFractionDigits]="2" [maxFractionDigits]="2"
+                    ></p-inputNumber>
+                </div>
+                <div class="col">
+                    <button pButton type="button" iconPos="right" icon="pi pi-sync" class="ui-button-info"
+                        (click)="onCalculate()"></button>
+                </div>
+            </div>
+        </p-card>
+    </div>
+</div>
