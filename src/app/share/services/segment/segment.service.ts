@@ -1,5 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/internal/Observable';
+import { Subject } from 'rxjs/internal/Subject';
 import { environment } from 'src/environments/environment';
 import { Segment, SegmentPost, SegmentPut } from '../../entities/segment';
 
@@ -9,15 +11,16 @@ import { Segment, SegmentPost, SegmentPut } from '../../entities/segment';
 })
 export class SegmentService {
 
-  API_URL = environment.API_URL;
+  private API_URL = environment.API_URL;
 
-  constructor(private http: HttpClient) { }
+  segmentsObs:Subject<Segment[]> = new Subject();
   
+  constructor(private http: HttpClient) { } 
 
   get() {
-    return this.http.get<any>(this.API_URL + 'segments').toPromise()
+    this.http.get<any>(this.API_URL + 'segments').toPromise()
       .then(res => <Segment[]>res.data)
-      .then(data => { return data; });
+      .then(data => { this.segmentsObs.next(data);});
   }
   post(segment: SegmentPost) {
     return this.http.post<any>(this.API_URL + 'segments', segment).toPromise()

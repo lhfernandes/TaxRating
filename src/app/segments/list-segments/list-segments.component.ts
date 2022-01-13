@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Segment, SegmentPost, SegmentPut } from 'src/app/share/entities/segment';
 import { Table } from 'primeng/table';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { SegmentService } from 'src/app/share/services/segment/segment.service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -10,7 +11,7 @@ import { SegmentService } from 'src/app/share/services/segment/segment.service';
   templateUrl: './list-segments.component.html',
   styleUrls: ['./list-segments.component.css']
 })
-export class ListSegmentsComponent implements OnInit {
+export class ListSegmentsComponent implements OnInit,OnDestroy {
 
   public segments: Segment[] = [];
   displayModal: boolean = false;
@@ -18,6 +19,7 @@ export class ListSegmentsComponent implements OnInit {
   numRegex = /^-?\d*[.,]?\d{0,2}$/;
   segmentSelect!: Segment;
   headerDialog: string = 'Novo Segmento';
+  subseg!: Subscription;
 
   constructor(private segmentService: SegmentService,
     private formBuilder: FormBuilder) {
@@ -26,6 +28,9 @@ export class ListSegmentsComponent implements OnInit {
       tax: [null, [Validators.required, Validators.pattern(this.numRegex)]],
       isActive: [null],
     });    
+  }
+  ngOnDestroy(): void {
+    this.subseg.unsubscribe();
   }
 
   novoSegmento(){
@@ -46,7 +51,10 @@ export class ListSegmentsComponent implements OnInit {
   }
 
   loadSegments() {
-    this.segmentService.get().then(segs => this.segments = segs);   
+    this.segmentService.get();
+    this.subseg = this.segmentService.segmentsObs.subscribe(segs =>{
+      this.segments = segs
+    });
   }
   onSubmit() {
     if (this.segmentForm.valid) {
